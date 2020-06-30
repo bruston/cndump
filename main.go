@@ -83,7 +83,7 @@ func getCommon(client *http.Client, work chan string, wg *sync.WaitGroup) {
 		}
 		io.Copy(ioutil.Discard, resp.Body)
 		resp.Body.Close()
-		if resp.TLS == nil || len(resp.TLS.PeerCertificates) == 0 {
+		if resp.TLS == nil || len(resp.TLS.PeerCertificates) == 0 || resp.TLS.PeerCertificates[0].Subject.CommonName == "" {
 			continue
 		}
 		fmt.Println(resp.TLS.PeerCertificates[0].Subject.CommonName)

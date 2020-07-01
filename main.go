@@ -19,6 +19,7 @@ func main() {
 	concurrent := flag.Int("c", 10, "number of concurrent requests to make")
 	timeout := flag.Int("t", 5, "timeout in seconds")
 	redirect := flag.Bool("r", false, "follow redirects")
+	showUrls := flag.Bool("u", false, "show urls in output")
 	flag.Parse()
 
 	var f io.ReadCloser
@@ -62,12 +63,12 @@ func main() {
 	wg := &sync.WaitGroup{}
 	for i := 0; i < *concurrent; i++ {
 		wg.Add(1)
-		go getCommon(client, work, wg)
+		go getCommon(client, work, wg, *showUrls)
 	}
 	wg.Wait()
 }
 
-func getCommon(client *http.Client, work chan string, wg *sync.WaitGroup) {
+func getCommon(client *http.Client, work chan string, wg *sync.WaitGroup, showUrls bool) {
 	for url := range work {
 		if !strings.HasPrefix(url, "https://") {
 			url = "https://" + url
@@ -86,7 +87,11 @@ func getCommon(client *http.Client, work chan string, wg *sync.WaitGroup) {
 		if resp.TLS == nil || len(resp.TLS.PeerCertificates) == 0 || resp.TLS.PeerCertificates[0].Subject.CommonName == "" {
 			continue
 		}
-		fmt.Println(resp.TLS.PeerCertificates[0].Subject.CommonName)
+		if showUrls {
+			fmt.Println(url, resp.TLS.PeerCertificates[0].Subject.CommonName)
+		} else {
+			fmt.Println(resp.TLS.PeerCertificates[0].Subject.CommonName)
+		}
 	}
 	wg.Done()
 }

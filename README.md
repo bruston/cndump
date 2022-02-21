@@ -8,4 +8,5 @@ Usage of cndump:
   -r	follow redirects (default false)
   -t int
     	timeout in seconds (default 5)
+  -u	show urls in output
 ```
